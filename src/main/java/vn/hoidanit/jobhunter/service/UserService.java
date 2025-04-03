@@ -30,4 +30,13 @@ public class UserService {
     public User handleGetUserById(long id) {
         return this.userRepository.getUserById(id);
     }
+
+    public User handleUpdateUser(long id, User updateUser) {
+        User existingUser = this.userRepository.getUserById(id);
+        existingUser.setEmail(updateUser.getEmail());
+        existingUser.setName(updateUser.getName());
+        existingUser.setPassword(updateUser.getPassword());
+        return this.userRepository.save(existingUser);
+    }
+
 }
