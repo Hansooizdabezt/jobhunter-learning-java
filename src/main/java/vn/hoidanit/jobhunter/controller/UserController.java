@@ -22,13 +22,13 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping("/user")
+    @PostMapping("/users")
     public User createNewUser(@RequestBody User createUser) {
         User newUser = this.userService.handleCreateUser(createUser);
         return newUser;
     }
 
-    @DeleteMapping("/user/{id}")
+    @DeleteMapping("/users/{id}")
     public String deleteUser(@PathVariable("id") long id) {
         this.userService.handleDeleteUserById(id);
         return "delete user successfully";
@@ -39,14 +39,15 @@ public class UserController {
         return this.userService.handleGetAllUsers();
     }
 
-    @GetMapping("/user/{id}")
+    @GetMapping("/users/{id}")
     public User getUserById(@PathVariable("id") long id) {
         return this.userService.handleGetUserById(id);
     }
 
-    @PutMapping("/user/{id}")
-    public User updateUser(@PathVariable("id") long id, @RequestBody User updateUser) {
-        return this.userService.handleUpdateUser(id, updateUser);
+    @PutMapping("/users")
+    public User updateUser(@RequestBody User updateUser) {
+        User currentUser = this.userService.handleUpdateUser(updateUser);
+        return currentUser;
     }
 
 }
