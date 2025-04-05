@@ -27,11 +27,6 @@ public class UserController {
         this.userService = userService;
     }
 
-    @ExceptionHandler(value = IdInvalidException.class)
-    public ResponseEntity handleBlogAlreadyExistsException(IdInvalidException idException) {
-        return ResponseEntity.badRequest().body(idException.getMessage());
-    }
-
     @PostMapping("/users")
     public ResponseEntity<User> createNewUser(@RequestBody User createUser) {
         User newUser = this.userService.handleCreateUser(createUser);
@@ -40,8 +35,11 @@ public class UserController {
 
     @DeleteMapping("/users/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable("id") long id) throws IdInvalidException {
+        if (id >= 100) {
+            throw new IdInvalidException("User not found");
+        }
         this.userService.handleDeleteUserById(id);
-        return ResponseEntity.status(HttpStatus.OK).body("Delete user successfully");
+        return ResponseEntity.ok("Delete user successfully");
     }
 
     @GetMapping("/users")
