@@ -2,12 +2,15 @@ package vn.hoidanit.jobhunter.utils.format;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import vn.hoidanit.jobhunter.domain.RestResponse;
 import vn.hoidanit.jobhunter.utils.errors.GlobalException;
@@ -34,18 +37,26 @@ public class FormatRestResponse implements ResponseBodyAdvice<Object> {
         HttpServletResponse servletResponse = ((ServletServerHttpResponse) response).getServletResponse();
         int status = servletResponse.getStatus();
 
-        RestResponse<Object> res = new RestResponse<Object>();
-
-        res.setStatusCode(status);
+        // case lỗi thì để nguyên body
         if (status >= 400) {
-            // case error
             return body;
-
-        } else {
-            // case success
-            res.setData(body);
-            res.setMessage("call api success");
         }
+
+        RestResponse<Object> res = new RestResponse<>();
+        res.setStatusCode(status);
+        res.setMessage("call api success");
+        res.setData(body);
+
+        // Nếu converter là StringHttpMessageConverter => convert res thành String JSON
+        if (StringHttpMessageConverter.class.isAssignableFrom(selectedConverterType)) {
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                return mapper.writeValueAsString(res);
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to convert response to JSON string", e);
+            }
+        }
+
         return res;
     }
 
